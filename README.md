@@ -1,1 +1,1 @@
-# GoForum
+GoForum is a lightweight forum server built with Go. It sets up routing, establishes a database connection, and launches a responsive server for managing forum interactions efficiently. This project is designed to showcase simple server setup, route management, and database integration in Go, facilitating a robust platform for forum-based applications.
