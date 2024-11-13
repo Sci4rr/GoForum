@@ -11,7 +11,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var router *Router
+var router *http.ServeMux
 
 func initDB() *sql.DB {
 	err := godotenv.Load()
@@ -30,6 +30,17 @@ func initDB() *sql.DB {
 	}
 
 	return db
+}
+
+func InitializeRoutes(db *sql.DB) *http.ServeMux {
+	r := http.NewServeMux()
+
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	return r
 }
 
 func main() {
