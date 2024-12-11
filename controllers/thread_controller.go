@@ -20,14 +20,17 @@ var forumThreads []ForumThread
 
 func createForumThread(w http.ResponseWriter, r *http.Request) {
     var newForumThread ForumThread
-    if err := json.NewDecoder(r.Body).Decode(&newForumThread); err != nil {
+    err := json.NewDecoder(r.Body).Decode(&newForumThread)
+    if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
+
     if newForumThread.Title == "" || newForumThread.Description == "" {
         http.Error(w, "Missing title or description", http.StatusBadRequest)
         return
     }
+
     forumThreads = append(forumThreads, newForumThread)
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(newForumThread)
@@ -53,16 +56,19 @@ func modifyForumThread(w http.ResponseWriter, r *http.Request) {
     for index, thread := range forumThreads {
         if thread.ID == params["id"] {
             var updatedThread ForumThread
-            if err := json.NewDecoder(r.Body).Decode(&updatedThread); err != nil {
+            err := json.NewDecoder(r.Body).Decode(&updatedThread)
+            if err != nil {
                 http.Error(w, err.Error(), http.StatusBadRequest)
                 return
             }
+
             if updatedThread.Title != "" {
                 thread.Title = updatedThread.Title
             }
             if updatedThread.Description != "" {
                 thread.Description = updatedThread.Description
             }
+
             forumThreads[index] = thread
             json.NewEncoder(w).Encode(thread)
             return
@@ -84,6 +90,7 @@ func removeForumThread(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     router := mux.NewRouter()
+
     router.HandleFunc("/threads", createForumThread).Methods("POST")
     router.HandleFunc("/threads", retrieveForumThreads).Methods("GET")
     router.HandleFunc("/threads/{id}", findForumThreadByID).Methods("GET")
