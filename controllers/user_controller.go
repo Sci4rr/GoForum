@@ -4,6 +4,7 @@ import (
     "encoding/json"
     "errors"
     "fmt"
+    "log"
     "net/http"
     "os"
     "time"
@@ -33,7 +34,7 @@ type Claims struct {
 func initDB() {
     db, err = gorm.Open("sqlite3", "forum.db")
     if err != nil {
-        panic("Failed to connect to database!")
+        log.Fatalf("Failed to connect to database: %v", err)
     }
     db.AutoMigrate(&User{})
 }
@@ -88,7 +89,11 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    db.Create(&user)
+    result := db.Create(&user)
+    if result.Error != nil {
+        http.Error(w, "Error creating user", http.StatusInternalServerError)
+        return
+    }
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(user)
 }
@@ -136,5 +141,5 @@ func main() {
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/profile", profileHandler)
 
-    http.ListenAndServe(":8080", nil)
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }
